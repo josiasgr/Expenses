@@ -1,5 +1,6 @@
 ﻿using Bogus;
 using Domain.Accounts;
+using Domain.Transactions;
 using Services;
 using Storage;
 using System;
@@ -11,7 +12,7 @@ using Xunit;
 
 namespace ServicesTests
 {
-    public class BalanceServicesTests
+    public class TransactionServicesTests
     {
         private Account _account;
 
@@ -39,34 +40,30 @@ namespace ServicesTests
 
         public static IEnumerable<object[]> BalanceDates =>
             new[] {
-                new [] { "2020-01-01" },
-                new [] { "2020-02-01" },
-                new [] { "2020-03-01" },
-                new [] { "2020-04-01" },
-                new [] { "2020-05-01" },
                 new [] { "2020-06-01" },
-                new [] { "2020-07-01" },
-                new [] { "2020-08-01" },
-                new [] { "2020-09-01" },
-                new [] { "2020-10-01" },
-                new [] { "2020-11-01" },
-                new [] { "2020-12-01" }
+                new [] { "2020-06-02" },
+                new [] { "2020-06-03" },
+                new [] { "2020-06-04" },
+                new [] { "2020-06-05" },
+                new [] { "2020-06-06" },
+                new [] { "2020-06-07" },
+                new [] { "2020-06-08" },
+                new [] { "2020-06-09" },
+                new [] { "2020-06-10" },
+                new [] { "2020-06-10" },
+                new [] { "2020-06-10" }
             };
-
-        public BalanceServicesTests()
-        {
-        }
 
         [Theory]
         [MemberData(nameof(BalanceDates))]
-        public async Task CreateAndReadBalancesByName(string strDate)
+        public async Task CreateAndReadExpences(string strDate)
         {
             _account = await new AccountServices(new JsonFileStorage(@"C:\Test", "", true))
                 .Create("TransactionServicesTests", true);
 
             // Arrange
             var date = DateTime.Parse(strDate);
-            var services = new MonthlyBalanceServices(
+            var services = new ExpenseServices(
                 new JsonFileStorage(
                     @"C:\Test",
                     Path.Combine(
@@ -79,11 +76,18 @@ namespace ServicesTests
             );
 
             // Act
-            var balanceCreated = await services.Create(_account.Id, date, true);
+            var expenseCreated = await services.Create(_account.Id, date, 0, new[] {
+                new TransactionDetails {
+                    Tags=new Dictionary<string, string>
+                    {
+                        { "Despensa", "SuperStore" }
+                    }
+                }
+            }, true);
 
             // Assert
-            var balanceRead = await services.Read(balanceCreated.Id);
-            Assert.Equal(balanceCreated, balanceRead);
+            var expenseRead = await services.Read(expenseCreated.Id);
+            Assert.Equal(expenseCreated, expenseRead);
         }
 
         //[Theory]

@@ -14,7 +14,6 @@ namespace ServicesTests
     {
         private readonly Faker<Account>
             data = new Faker<Account>()
-                    .RuleFor(o => o.Id, f => f.Random.AlphaNumeric(10).ToString())
                     .RuleFor(acc => acc.Name, f => f.Company.CompanyName());
 
         public IEnumerator<object[]> GetEnumerator()

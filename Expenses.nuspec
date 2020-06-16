@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Expenses</id>
+    <version>1.0.0</version>
+    <title></title>
+    <authors>josiasgr</authors>
+    <owners></owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/josiasgr/Expenses</projectUrl>
+    <description>Sample application for expenses tracking.</description>
+    <copyright>MIT</copyright>
+    <language></language>
+    <dependencies>
+	  <group targetFramework=".NETStandard2.1">
+        <dependency id="LibGit2Sharp" version="0.26.2" />
+        <dependency id="Newtonsoft.Json" version="12.0.3" />
+        <dependency id="System.IO.Abstractions" version="11.0.7" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+	<file src="Domain\bin\Debug\netstandard2.1\*" target="lib\netstandard2.1" />
+	<file src="Entities\bin\Debug\netstandard2.1\*" target="lib\netstandard2.1" />
+	<file src="Services\bin\Debug\netstandard2.1\*" target="lib\netstandard2.1" />
+	<file src="Storage\bin\Debug\netstandard2.1\*" target="lib\netstandard2.1" />
+	<file src="Utils\bin\Debug\netstandard2.1\*" target="lib\netstandard2.1" />
+ </files>
+</package>

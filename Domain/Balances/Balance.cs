@@ -2,7 +2,7 @@
 
 namespace Domain.Balances
 {
-    public class Balance : BalanceEntity
+    public abstract class Balance : BalanceEntity
     {
     }
 }

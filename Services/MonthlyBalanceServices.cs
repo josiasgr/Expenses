@@ -1,5 +1,4 @@
-﻿using Domain.Accounts;
-using Domain.Balances;
+﻿using Domain.Balances;
 using Storage;
 using System;
 using System.Threading.Tasks;
@@ -12,23 +11,26 @@ namespace Services
             IStorage storage
         ) : base(storage) { }
 
-        public Task<MonthlyBalance> Create(Account account, DateTime dateTime, bool overwriteIfExists = false)
+        public Task<MonthlyBalance> Create(string accountId, DateTime dateTime, bool overwriteIfExists = false)
         {
             var balance = new MonthlyBalance
             {
-                Id = $"{account.Id}-{dateTime:yyyy-MM}",
+                Id = GenerateId(accountId, dateTime),
                 Name = $"{dateTime:MMMM, yyyy}",
-                AccountId = account.Id,
+                AccountId = accountId,
                 Date = new DateTime(dateTime.Year, dateTime.Month, 01)
             };
 
             return Create(balance, overwriteIfExists);
         }
 
-        public Task<MonthlyBalance> Read(Account account, DateTime dateTime)
+        public Task<MonthlyBalance> Read(string accountId, DateTime dateTime)
         {
-            var id = $"{account.Id}-{dateTime.Year}-{dateTime.Month}";
+            var id = GenerateId(accountId, dateTime);
             return Read(id);
         }
+
+        private string GenerateId(string accountId, DateTime dateTime)
+            => $"{accountId}-{dateTime:yyyy-MM}";
     }
 }

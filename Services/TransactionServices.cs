@@ -1,22 +1,11 @@
 ﻿using Storage;
-using System.Threading.Tasks;
 
 namespace Services
 {
-    public class TransactionServices
+    public abstract class TransactionServices<T> : Services<T>
     {
-        private readonly IStorage _storage;
-
-        public TransactionServices(
-            IStorage storage
-        )
-        {
-            _storage = storage;
-        }
-
-        public Task<string> Create()
-        {
-            return Task.FromResult("");
-        }
+        protected TransactionServices(
+        IStorage storage
+        ) : base(storage) { }
     }
 }

@@ -7,6 +7,7 @@ namespace Entities.Transactions
     {
         public string AccountId { get; set; }
         public DateTime Date { get; set; }
-        public IEnumerable<TransactionDetails> TransactionDetails { get; set; }
+        public int Sequence { get; set; }
+        public IEnumerable<TransactionDetailsEntity> TransactionDetails { get; set; }
     }
 }

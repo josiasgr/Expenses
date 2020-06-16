@@ -1,6 +1,5 @@
 ﻿using Domain.Accounts;
 using Storage;
-using System;
 using System.Threading.Tasks;
 
 namespace Services
@@ -15,7 +14,6 @@ namespace Services
         {
             return Create(new Account
             {
-                Id = Guid.NewGuid().ToString(),
                 Name = accountName
             }, overwriteIfExists);
         }
