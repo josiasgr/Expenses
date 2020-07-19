@@ -52,7 +52,7 @@ namespace Storage
 
             if (!overwriteIfExists && File.Exists(fullFileName))
             {
-                throw new JsonFileStorageException(new LogEvent
+                throw new StorageException(new LogEvent
                 {
                     EventMessage = $"Object {typeof(T).FullName} with Id = {id} already exists.",
                     EventData = new Dictionary<string, object>
@@ -102,7 +102,7 @@ namespace Storage
             var target = await Read<T>(sourceId);
             if (target == null)
             {
-                throw new JsonFileStorageException(new LogEvent
+                throw new StorageException(new LogEvent
                 {
                     EventMessage = $"Update {typeof(T).FullName} fail because Id = {sourceId} does not exists.",
                     EventData = new Dictionary<string, object>
@@ -173,7 +173,7 @@ namespace Storage
                 return (id, GetFullFileName<T>(id));
             }
 
-            throw new JsonFileStorageException(new LogEvent
+            throw new StorageException(new LogEvent
             {
                 EventMessage = $"Id property was not found for type {typeof(T).FullName}",
                 EventData = new Dictionary<string, object>

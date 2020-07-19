@@ -12,7 +12,6 @@ namespace Domain.Transactions
         public Expense()
         {
             Id = Guid.NewGuid().ToString();
-            Name = "";
         }
 
         public bool Equals(Expense other)

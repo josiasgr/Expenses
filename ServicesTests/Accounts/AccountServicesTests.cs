@@ -1,16 +1,17 @@
 ﻿using Bogus;
 using Domain.Accounts;
-using Services;
+using Services.Accounts;
 using Storage;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace ServicesTests
+namespace ServicesTests.Accounts
 {
     public class AccountServicesTests
     {
+        private readonly string _storageBaseFolder = @"C:\Test";
         private readonly IStorage _storage;
 
         /// <summary>
@@ -36,22 +37,20 @@ namespace ServicesTests
                 .ToArray();
 
         public AccountServicesTests()
-        {
-            _storage = new JsonFileStorage(@"C:\Test", "", true);
-        }
+            => _storage = new JsonFileStorage(_storageBaseFolder, "", true);
 
         [Theory]
         [MemberData(nameof(AccountNames))]
         public async Task CreateAndReadAccountsByName(string accountName)
         {
             // Arrange
-            var accountServices = new AccountServices(_storage);
+            var services = new AccountServices(_storage);
 
             // Act
-            var accountCreated = await accountServices.Create(accountName);
+            var accountCreated = await services.Create(accountName);
 
             // Assert
-            var accountRead = await accountServices.Read(accountCreated.Id);
+            var accountRead = await services.Read(accountCreated.Id);
             Assert.Equal(accountCreated, accountRead);
         }
 
@@ -60,29 +59,26 @@ namespace ServicesTests
         public async Task CreateAndReadAccountsByObject(Account account)
         {
             // Arrange
-            var accountServices = new AccountServices(_storage);
+            var services = new AccountServices(_storage);
 
             // Act
-            var accountCreated = await accountServices.Create(account);
+            var accountCreated = await services.Create(account);
 
             // Assert
-            var accountRead = await accountServices.Read(accountCreated.Id);
+            var accountRead = await services.Read(accountCreated.Id);
             Assert.Equal(accountCreated, accountRead);
         }
 
-        [Fact]
-        public async Task ReadBy()
+        [Theory]
+        [MemberData(nameof(AccountNames))]
+        public async Task ReadBy(string accountName)
         {
             // Arrange
-            var accountServices = new AccountServices(_storage);
-            await accountServices.Create(new Account
-            {
-                Id = "1",
-                Name = "ReadBy"
-            }, true);
+            var services = new AccountServices(_storage);
+            await services.Create(accountName);
 
             // Act
-            var enumerable = await accountServices.ReadBy(w => w.Name == "ReadBy");
+            var enumerable = await services.ReadBy(w => w.Name == accountName);
 
             // Assert
             Assert.NotNull(enumerable.AsEnumerable().SingleOrDefault());
@@ -93,12 +89,12 @@ namespace ServicesTests
         public async Task UpdateAccounts(string accountName)
         {
             // Arrange
-            var accountServices = new AccountServices(_storage);
-            var account = await accountServices.Create(accountName);
+            var services = new AccountServices(_storage);
+            var accountCreated = await services.Create(accountName);
 
             // Act
-            account.Name += account.Name;
-            var upd = await accountServices.Update(account);
+            accountCreated.Name += accountCreated.Name;
+            var upd = await services.Update(accountCreated);
 
             // Assert
             Assert.NotNull(upd);
@@ -109,11 +105,11 @@ namespace ServicesTests
         public async Task DeleteAccounts(string accountName)
         {
             // Arrange
-            var accountServices = new AccountServices(_storage);
-            var account = await accountServices.Create(accountName);
+            var services = new AccountServices(_storage);
+            var accountCreated = await services.Create(accountName);
 
             // Act
-            var wasDeleted = await accountServices.Delete(account);
+            var wasDeleted = await services.Delete(accountCreated);
 
             // Assert
             Assert.True(wasDeleted);

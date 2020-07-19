@@ -9,7 +9,6 @@ namespace Domain.Transactions
         public TransactionDetails()
         {
             Id = Guid.NewGuid().ToString();
-            Name = "";
         }
 
         public bool Equals(TransactionDetails other)

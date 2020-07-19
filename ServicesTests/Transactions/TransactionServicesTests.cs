@@ -1,7 +1,8 @@
 ﻿using Bogus;
 using Domain.Accounts;
 using Domain.Transactions;
-using Services;
+using Services.Accounts;
+using Services.Transactions;
 using Storage;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace ServicesTests
+namespace ServicesTests.Transactions
 {
     public class TransactionServicesTests
     {
@@ -20,11 +21,11 @@ namespace ServicesTests
         /// Use on test cases as
         ///
         /// [Theory]
-        /// [MemberData(nameof(BalanceNames))]
+        /// [MemberData(nameof(TransactionNames))]
         ///
-        /// Returns random Balance names for xUnit tests, similar to:
+        /// Returns random Transaction names for xUnit tests, similar to:
         ///
-        /// BalanceNames =>
+        /// TransactionNames =>
         /// new[] {
         ///     new [] { random string },
         ///     new [] { random string }
@@ -32,13 +33,13 @@ namespace ServicesTests
         ///
         /// But on every read returns a dynamic result.
         /// </summary>
-        public static IEnumerable<object[]> BalanceNames =>
+        public static IEnumerable<object[]> TransactionNames =>
             new Faker()
                 .Make(10, f => new Faker().Company.CompanyName())
                 .Select(s => new[] { s })
                 .ToArray();
 
-        public static IEnumerable<object[]> BalanceDates =>
+        public static IEnumerable<object[]> TransactionDates =>
             new[] {
                 new [] { "2020-06-01" },
                 new [] { "2020-06-02" },
@@ -55,7 +56,7 @@ namespace ServicesTests
             };
 
         [Theory]
-        [MemberData(nameof(BalanceDates))]
+        [MemberData(nameof(TransactionDates))]
         public async Task CreateAndReadExpences(string strDate)
         {
             _account = await new AccountServices(new JsonFileStorage(@"C:\Test", "", true))
@@ -78,9 +79,13 @@ namespace ServicesTests
             // Act
             var expenseCreated = await services.Create(_account.Id, date, 0, new[] {
                 new TransactionDetails {
+                    Name = "",
+                    Value = 1,
                     Tags=new Dictionary<string, string>
                     {
-                        { "Despensa", "SuperStore" }
+                        { "Category", "Despensa" },
+                        { "Provider", "SuperStore" },
+                        { "ChargeTo", ""}
                     }
                 }
             }, true);
@@ -91,26 +96,26 @@ namespace ServicesTests
         }
 
         //[Theory]
-        //[ClassData(typeof(BalanceObjectData))]
-        //public async Task CreateAndReadBalancesByObject(Balance Balance)
+        //[ClassData(typeof(TransactionObjectData))]
+        //public async Task CreateAndReadTransactionsByObject(Transaction Transaction)
         //{
         //    // Arrange
-        //    var services = new BalanceServices(_storage);
+        //    var services = new TransactionServices(_storage);
 
         //    // Act
-        //    var balanceCreated = await services.Create(Balance);
+        //    var balanceCreated = await services.Create(Transaction);
 
         //    // Assert
-        //    var BalanceRead = await services.Read(BalanceCreated.Id);
-        //    Assert.Equal(BalanceCreated, BalanceRead);
+        //    var TransactionRead = await services.Read(TransactionCreated.Id);
+        //    Assert.Equal(TransactionCreated, TransactionRead);
         //}
 
         //[Fact]
         //public async Task ReadBy()
         //{
         //    // Arrange
-        //    var services = new BalanceServices(_storage);
-        //    await services.Create(new Balance
+        //    var services = new TransactionServices(_storage);
+        //    await services.Create(new Transaction
         //    {
         //        Id = "1",
         //        Name = "ReadBy"
@@ -124,31 +129,31 @@ namespace ServicesTests
         //}
 
         //[Theory]
-        //[MemberData(nameof(BalanceNames))]
-        //public async Task UpdateBalances(string BalanceName)
+        //[MemberData(nameof(TransactionNames))]
+        //public async Task UpdateTransactions(string TransactionName)
         //{
         //    // Arrange
-        //    var services = new BalanceServices(_storage);
-        //    var Balance = await services.Create(BalanceName);
+        //    var services = new TransactionServices(_storage);
+        //    var Transaction = await services.Create(TransactionName);
 
         //    // Act
-        //    Balance.Name += Balance.Name;
-        //    var upd = await services.Update(Balance);
+        //    Transaction.Name += Transaction.Name;
+        //    var upd = await services.Update(Transaction);
 
         //    // Assert
         //    Assert.NotNull(upd);
         //}
 
         //[Theory]
-        //[MemberData(nameof(BalanceNames))]
-        //public async Task DeleteBalances(string BalanceName)
+        //[MemberData(nameof(TransactionNames))]
+        //public async Task DeleteTransactions(string TransactionName)
         //{
         //    // Arrange
-        //    var services = new BalanceServices(_storage);
-        //    var Balance = await services.Create(BalanceName);
+        //    var services = new TransactionServices(_storage);
+        //    var Transaction = await services.Create(TransactionName);
 
         //    // Act
-        //    var wasDeleted = await services.Delete(Balance);
+        //    var wasDeleted = await services.Delete(Transaction);
 
         //    // Assert
         //    Assert.True(wasDeleted);

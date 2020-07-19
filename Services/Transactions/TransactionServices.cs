@@ -1,6 +1,6 @@
 ﻿using Storage;
 
-namespace Services
+namespace Services.Transactions
 {
     public abstract class TransactionServices<T> : Services<T>
     {

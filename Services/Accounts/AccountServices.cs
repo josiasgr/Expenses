@@ -2,7 +2,7 @@
 using Storage;
 using System.Threading.Tasks;
 
-namespace Services
+namespace Services.Accounts
 {
     public class AccountServices : Services<Account>
     {

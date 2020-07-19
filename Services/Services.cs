@@ -16,27 +16,27 @@ namespace Services
             _storage = storage;
         }
 
-        public Task<T> Create(T obj, bool overwriteIfExists = false)
+        public virtual Task<T> Create(T obj, bool overwriteIfExists = false)
         {
             return _storage.Create(obj, overwriteIfExists);
         }
 
-        public Task<T> Read(string id)
+        public virtual Task<T> Read(string id)
         {
             return _storage.Read<T>(id);
         }
 
-        public Task<IEnumerable<T>> ReadBy(Func<T, bool> predicate)
+        public virtual Task<IEnumerable<T>> ReadBy(Func<T, bool> predicate)
         {
             return _storage.ReadBy(predicate);
         }
 
-        public Task<T> Update(T obj)
+        public virtual Task<T> Update(T obj)
         {
             return _storage.Update(obj);
         }
 
-        public Task<bool> Delete(string id)
+        public virtual Task<bool> Delete(string id)
         {
             return _storage.Delete<T>(id);
         }
