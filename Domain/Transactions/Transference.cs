@@ -1,13 +1,12 @@
-﻿using Entities.Transactions;
-using System;
+﻿using System;
 
 namespace Domain.Transactions
 {
-    public class Transference : TransferenceEntity
+    public class Transference : Transaction, IEquatable<Transference>
     {
-        public Transference()
+        public bool Equals(Transference other)
         {
-            Id = Guid.NewGuid().ToString();
+            return base.Equals(other);
         }
     }
 }

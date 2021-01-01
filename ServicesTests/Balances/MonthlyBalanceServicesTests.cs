@@ -54,7 +54,7 @@ namespace ServicesTests.Balances
         {
             Task.Run(async () =>
             {
-                _account = await new AccountServices(new JsonFileStorage(_storageBaseFolder, "", true))
+                _account = await new AccountServices(new JsonFileStorage(_storageBaseFolder, true))
                     .Create("TransactionServicesTests", true);
             }).Wait();
         }
@@ -86,7 +86,7 @@ namespace ServicesTests.Balances
             balance.AccountId = _account.Id;
             var services = new MonthlyBalanceServices(
                 _account.Id,
-                GetStorageForBalanceDate(balance.Date)
+                GetStorageForBalanceDate(balance.FromDate)
             );
 
             // Act
@@ -109,7 +109,7 @@ namespace ServicesTests.Balances
             );
 
             // Act
-            var enumerable = await services.ReadBy(w => w.Date == date);
+            var enumerable = await services.ReadBy(w => w.FromDate == date);
 
             // Assert
             Assert.NotNull(enumerable.AsEnumerable().SingleOrDefault());
@@ -128,7 +128,6 @@ namespace ServicesTests.Balances
             var balanceCreated = await services.Create(date);
 
             // Act
-            balanceCreated.Name += balanceCreated.Name;
             var upd = await services.Update(balanceCreated);
 
             // Assert
@@ -157,11 +156,6 @@ namespace ServicesTests.Balances
         {
             return new JsonFileStorage(
                     _storageBaseFolder,
-                    Path.Combine(
-                        $"{date:yyyy}",
-                        $"{date:MM}",
-                        $"{date:dd}"
-                    ),
                     true
                 );
         }

@@ -13,7 +13,9 @@ namespace ServicesTests.Balances
     {
         public override Faker<MonthlyBalance> Data
             => new Faker<MonthlyBalance>()
-                    .RuleFor(b => b.Date, f => f.Date.Between(DateTime.Parse("2019-01-01"), DateTime.Parse("2019-12-31")))
-                    .RuleFor(acc => acc.Name, f => f.Company.CompanyName());
+                    .RuleFor(
+                        b => b.FromDate,
+                        f => f.Date.Between(DateTime.Parse("2019-01-01"), DateTime.Parse("2019-12-31"))
+                    );
     }
 }

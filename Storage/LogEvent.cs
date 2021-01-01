@@ -5,8 +5,8 @@ namespace Storage
 {
     public class LogEvent
     {
-        public DateTime EventDateTime { get; set; } = DateTime.UtcNow;
-        public string EventMessage { get; set; }
-        public IEnumerable<KeyValuePair<string, object>> EventData { get; set; }
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public string Message { get; set; }
+        public IEnumerable<KeyValuePair<string, object>> Data { get; set; }
     }
 }

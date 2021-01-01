@@ -1,13 +1,12 @@
-﻿using Entities.Transactions;
-using System;
+﻿using System;
 
 namespace Domain.Transactions
 {
-    public class Income : IncomeEntity
+    public sealed class Income : Transaction, IEquatable<Income>
     {
-        public Income()
+        public bool Equals(Income other)
         {
-            Id = Guid.NewGuid().ToString();
+            return base.Equals(other);
         }
     }
 }

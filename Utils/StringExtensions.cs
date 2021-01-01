@@ -9,7 +9,7 @@ namespace Utils
     public static class StringExtensions
     {
         [DebuggerStepThrough]
-        public static string SanitizeFileName(this string str)
+        public static string RemoveInvalidFileNameChars(this string str)
         {
             var invalids = Path.GetInvalidFileNameChars();
             return string.Join("_", str.Split(invalids, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');

@@ -10,7 +10,10 @@ namespace Services.Accounts
             IStorage storage
         ) : base(storage) { }
 
-        public Task<Account> Create(string accountName, bool overwriteIfExists = false)
+        public Task<Account> Create(
+            string accountName,
+            bool overwriteIfExists = false
+        )
         {
             return Create(new Account
             {

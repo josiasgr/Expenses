@@ -1,22 +1,15 @@
 ﻿using Entities.Transactions;
 using System;
-using System.Linq;
 
 namespace Domain.Transactions
 {
-    public sealed class TransactionDetails : TransactionDetailsEntity, IEquatable<TransactionDetails>
+    public class TransactionDetails : TransactionDetailsEntity, IEquatable<TransactionDetailsEntity>
     {
-        public TransactionDetails()
+        public bool Equals(TransactionDetailsEntity other)
         {
-            Id = Guid.NewGuid().ToString();
-        }
-
-        public bool Equals(TransactionDetails other)
-        {
-            return Id.Equals(other.Id, StringComparison.InvariantCulture)
-                    && Name.Equals(other.Name, StringComparison.InvariantCulture)
+            return Id.Equals(other.Id, StringComparison.InvariantCultureIgnoreCase)
                     && Value.Equals(other.Value)
-                    && Tags.SequenceEqual(other.Tags);
+                    && Tags.Equals(other.Tags);
         }
     }
 }

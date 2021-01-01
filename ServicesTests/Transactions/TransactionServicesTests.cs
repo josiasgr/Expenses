@@ -1,5 +1,6 @@
 ﻿using Bogus;
 using Domain.Accounts;
+using Domain.Tags;
 using Domain.Transactions;
 using Services.Accounts;
 using Services.Transactions;
@@ -59,19 +60,14 @@ namespace ServicesTests.Transactions
         [MemberData(nameof(TransactionDates))]
         public async Task CreateAndReadExpences(string strDate)
         {
-            _account = await new AccountServices(new JsonFileStorage(@"C:\Test", "", true))
+            _account = await new AccountServices(new JsonFileStorage(@"C:\Test", true))
                 .Create("TransactionServicesTests", true);
 
             // Arrange
             var date = DateTime.Parse(strDate);
             var services = new ExpenseServices(
                 new JsonFileStorage(
-                    @"C:\Test",
-                    Path.Combine(
-                        $"{date:yyyy}",
-                        $"{date:MM}",
-                        $"{date:dd}"
-                    )
+                    @"C:\Test"
                     , true
                 )
             );
@@ -79,13 +75,11 @@ namespace ServicesTests.Transactions
             // Act
             var expenseCreated = await services.Create(_account.Id, date, 0, new[] {
                 new TransactionDetails {
-                    Name = "",
                     Value = 1,
-                    Tags=new Dictionary<string, string>
+                    Tags= new List<string>()
                     {
-                        { "Category", "Despensa" },
-                        { "Provider", "SuperStore" },
-                        { "ChargeTo", ""}
+                        "Despensa",
+                        "SuperStore"
                     }
                 }
             }, true);

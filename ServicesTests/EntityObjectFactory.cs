@@ -9,7 +9,7 @@ namespace ServicesTests
     {
         public virtual Faker<T> Data
             => new Faker<T>()
-                    .RuleFor(e => e.Name, f => f.Company.CompanyName());
+                    .RuleFor(e => e.Id, f => f.Random.Guid().ToString());
 
         public IEnumerator<object[]> GetEnumerator()
         {

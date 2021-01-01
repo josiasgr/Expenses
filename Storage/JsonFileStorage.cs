@@ -14,25 +14,13 @@ namespace Storage
         private readonly bool _enableVersionControl;
         private readonly IRepository _repository = null;
         private readonly string _storageFolder;
-        private readonly string _customSubFolder;
 
         private static readonly object lockObj = new object();
 
-        public JsonFileStorage(string storageFolder, string customSubFolder, bool enableVersionControl)
+        public JsonFileStorage(string storageFolder, bool enableVersionControl)
         {
             _storageFolder = storageFolder;
-            if (!Directory.Exists(_storageFolder))
-            {
-                Directory.CreateDirectory(_storageFolder);
-            }
-
-            _customSubFolder = customSubFolder;
-            if (!string.IsNullOrEmpty(_customSubFolder)
-                && !Directory.Exists(Path.Combine(_storageFolder, _customSubFolder))
-            )
-            {
-                Directory.CreateDirectory(Path.Combine(_storageFolder, _customSubFolder));
-            }
+            Directory.CreateDirectory(_storageFolder);
 
             _enableVersionControl = enableVersionControl;
             if (_enableVersionControl)
@@ -54,10 +42,10 @@ namespace Storage
             {
                 throw new StorageException(new LogEvent
                 {
-                    EventMessage = $"Object {typeof(T).FullName} with Id = {id} already exists.",
-                    EventData = new Dictionary<string, object>
+                    Message = $"Object {typeof(T).FullName} with Id = {id} already exists.",
+                    Data = new Dictionary<string, object>
                     {
-                        {id, obj }
+                        { id, obj }
                     }
                 });
             }
@@ -66,7 +54,7 @@ namespace Storage
             var content = JsonConvert.SerializeObject(obj, Formatting.Indented);
             await File.WriteAllTextAsync(fullFileName, content);
 
-            ExecuteVersionControl($"Creating {typeof(T).FullName} '{obj.GetValue<string>("Name")}'", fullFileName);
+            ExecuteVersionControl($"Creating {typeof(T).FullName} '{obj.GetValue<string>("Id")}'", fullFileName);
 
             return obj;
         }
@@ -86,7 +74,7 @@ namespace Storage
 
         public async Task<IEnumerable<T>> ReadBy<T>(Func<T, bool> predicate)
         {
-            var folder = GetStorageFolder<T>();
+            var folder = GetStorageFolderForType<T>();
 
             var files = Directory.GetFiles(folder);
             var tasks = files.Select(s => CreateObjectFromFile<T>(s));
@@ -104,8 +92,8 @@ namespace Storage
             {
                 throw new StorageException(new LogEvent
                 {
-                    EventMessage = $"Update {typeof(T).FullName} fail because Id = {sourceId} does not exists.",
-                    EventData = new Dictionary<string, object>
+                    Message = $"Update {typeof(T).FullName} fail because Id = {sourceId} does not exists.",
+                    Data = new Dictionary<string, object>
                     {
                         {"Id", sourceId}
                     }
@@ -136,30 +124,41 @@ namespace Storage
             );
         }
 
-        private string GetStorageFolder<T>()
+        public Task<IEnumerable<string>> History<T>(T obj)
+        {
+            if (_enableVersionControl)
+            {
+                var result = new List<string>();
+                var (id, fullFileName) = GetIdAndFileName(obj);
+                var r = _repository.RetrieveStatus(fullFileName);
+                result.Add(r.ToString());
+
+                return Task.FromResult(result.AsEnumerable());
+            }
+
+            return Task.FromResult(Enumerable.Empty<string>());
+        }
+
+        private string GetStorageFolderForType<T>()
         {
             // Prepares the folder, using the type name...
             var folder = Path.Combine(
                             _storageFolder,
-                            _customSubFolder,
                             typeof(T).FullName
                         );
 
-            if (!Directory.Exists(folder))
-            {
-                Directory.CreateDirectory(folder);
-            }
+            Directory.CreateDirectory(folder);
 
             return folder;
         }
 
         private string GetFullFileName<T>(string id)
         {
-            var folder = GetStorageFolder<T>();
+            var folder = GetStorageFolderForType<T>();
 
             var fullFileName = Path.Combine(
                                     folder,
-                                    id.SanitizeFileName()
+                                    id.RemoveInvalidFileNameChars()
                                     );
 
             return fullFileName;
@@ -175,8 +174,8 @@ namespace Storage
 
             throw new StorageException(new LogEvent
             {
-                EventMessage = $"Id property was not found for type {typeof(T).FullName}",
-                EventData = new Dictionary<string, object>
+                Message = $"Id property was not found for type {typeof(T).FullName}",
+                Data = new Dictionary<string, object>
                 {
                     { "T", obj }
                 }

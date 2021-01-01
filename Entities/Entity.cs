@@ -1,12 +1,12 @@
-﻿namespace Entities
+﻿using System;
+
+namespace Entities
 {
     /// <summary>
-    /// Entities are meant to be POCO for persistence
-    /// Everything must inherit from Entity
+    /// Entities are meant to be plain objects for persistence
     /// </summary>
-    public class Entity
+    public abstract class Entity
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
     }
 }

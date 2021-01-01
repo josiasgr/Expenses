@@ -3,19 +3,14 @@ using System;
 
 namespace Domain.Balances
 {
-    public sealed class MonthlyBalance : MonthlyBalanceEntity, IEquatable<MonthlyBalance>
+    public sealed class MonthlyBalance : BalanceEntity, IEquatable<MonthlyBalance>
     {
-        public MonthlyBalance()
-        {
-            Id = Guid.NewGuid().ToString();
-        }
-
         public bool Equals(MonthlyBalance other)
         {
-            return Id.Equals(other.Id, StringComparison.InvariantCulture)
-                    && Name.Equals(other.Name, StringComparison.InvariantCulture)
-                    && AccountId.Equals(other.AccountId, StringComparison.InvariantCulture)
-                    && Date.Equals(other.Date)
+            return Id.Equals(other.Id, StringComparison.InvariantCultureIgnoreCase)
+                    && AccountId.Equals(other.AccountId, StringComparison.InvariantCultureIgnoreCase)
+                    && FromDate.Equals(other.FromDate)
+                    && ToDate.Equals(other.ToDate)
                     && InitialValue.Equals(other.InitialValue)
                     && CurrentValue.Equals(other.CurrentValue);
         }

@@ -1,5 +1,4 @@
 ﻿using Domain.Balances;
-using LibGit2Sharp;
 using Storage;
 using System;
 using System.Collections.Generic;
@@ -24,9 +23,9 @@ namespace Services.Balances
             var balance = new MonthlyBalance
             {
                 Id = GenerateId(dateTime),
-                Name = $"{dateTime:MMMM, yyyy}",
                 AccountId = _accountId,
-                Date = new DateTime(dateTime.Year, dateTime.Month, 01)
+                FromDate = new DateTime(dateTime.Year, dateTime.Month, 01),
+                ToDate = new DateTime(dateTime.Year, dateTime.Month, DateTime.DaysInMonth(dateTime.Year, dateTime.Month))
             };
 
             return Create(balance, overwriteIfExists);
