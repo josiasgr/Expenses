@@ -7,8 +7,8 @@ namespace Domain.Accounts
     {
         public bool Equals(Account other)
         {
-            return Id.Equals(other.Id, StringComparison.InvariantCultureIgnoreCase)
-                    && Name.Equals(other.Name, StringComparison.InvariantCultureIgnoreCase);
+            return string.Compare(Id, other.Id, StringComparison.InvariantCultureIgnoreCase) == 0
+                    && string.Compare(Name, other.Name, StringComparison.InvariantCultureIgnoreCase) == 0;
         }
     }
 }

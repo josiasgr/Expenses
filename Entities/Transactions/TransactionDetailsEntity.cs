@@ -1,4 +1,3 @@
-using Entities.Tags;
 using System.Collections.Generic;
 
 namespace Entities.Transactions
@@ -6,6 +5,6 @@ namespace Entities.Transactions
     public abstract class TransactionDetailsEntity : Entity
     {
         public decimal Value { get; set; }
-        public ICollection<string> Tags { get; set; }
+        public IEnumerable<string> Tags { get; set; }
     }
 }

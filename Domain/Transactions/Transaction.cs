@@ -1,6 +1,6 @@
 ﻿using Entities.Transactions;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace Domain.Transactions
 {
@@ -8,15 +8,15 @@ namespace Domain.Transactions
     {
         public Transaction()
         {
-            TransactionDetails = new List<TransactionDetails>();
+            TransactionDetails = Enumerable.Empty<TransactionDetailsEntity>();
         }
 
         public bool Equals(Transaction other)
         {
-            return Id.Equals(other.Id, StringComparison.InvariantCultureIgnoreCase)
-                    && AccountId.Equals(other.AccountId, StringComparison.InvariantCultureIgnoreCase)
-                    && Date.Equals(other.Date)
-                    && Sequence.Equals(other.Sequence)
+            return string.Compare(Id, other.Id, StringComparison.InvariantCultureIgnoreCase) == 0
+                    && string.Compare(AccountId, other.AccountId, StringComparison.InvariantCultureIgnoreCase) == 0
+                    && Date == other.Date
+                    && Sequence == other.Sequence
                     && TransactionDetails.Equals(other.TransactionDetails);
         }
     }

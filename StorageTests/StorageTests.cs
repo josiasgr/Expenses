@@ -2,7 +2,9 @@ using Storage;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using Xunit;
+using Xunit.Extensions.Ordering;
 
 namespace StorageTests
 {
@@ -20,10 +22,10 @@ namespace StorageTests
 
     public class StorageTests
     {
-        private JsonFileStorage GetRandomStorage(bool enableVersionControl)
-            => new JsonFileStorage(Path.GetTempFileName().Split('.')[0], enableVersionControl);
+        private IStorage GetRandomStorage(bool enableVersionControl)
+            => new JsonFileStorage(Path.Combine(Path.GetTempPath(), DateTime.Now.ToShortDateString(), enableVersionControl.ToString()), enableVersionControl);
 
-        [Fact]
+        [Fact, Order(2)]
         public void CreateJsonFileStorage()
         {
             // Arrange
@@ -37,23 +39,62 @@ namespace StorageTests
             Assert.True(storageWithVersionControl is JsonFileStorage);
         }
 
-        [Fact]
-        public async void CreateFileOnStorage()
+        [Fact, Order(2)]
+        public void CreateFileOnStorage()
         {
             // Arrange
             var storage = GetRandomStorage(false);
             var storageWithVersionControl = GetRandomStorage(true);
-            var o = new DummyClass();
+            var o = new DummyClass
+            {
+                Id = "1"
+            };
 
             // Act
-            var created1 = await storage.Create(o);
-            var created2 = await storageWithVersionControl.Create(o);
+            var created1 = storage.Create(o).GetAwaiter().GetResult();
+            var created2 = storageWithVersionControl.Create(o).GetAwaiter().GetResult();
 
             // Assert
-            Assert.Equal(created1, o);
-            Assert.Equal(created2, o);
+            Assert.Equal(o, created1);
+            Assert.Equal(o, created2);
+        }
 
-            var h = storageWithVersionControl.History(created2);
+        [Fact, Order(3)]
+        public void ReadFileOnStorageById()
+        {
+            // Arrange
+            var storage = GetRandomStorage(false);
+            var storageWithVersionControl = GetRandomStorage(true);
+
+            // Act
+            var read1 = storage.Read<DummyClass>("1").GetAwaiter().GetResult();
+            var read2 = storageWithVersionControl.Read<DummyClass>("1").GetAwaiter().GetResult();
+
+            // Assert
+            Assert.Equal("1", read1.Id);
+            Assert.Equal("1", read2.Id);
+        }
+
+        [Fact, Order(4)]
+        public void ReadFileOnStorageByPredicate()
+        {
+            // Arrange
+            var storage = GetRandomStorage(false);
+            var storageWithVersionControl = GetRandomStorage(true);
+
+            // Act
+            var read1 = storage
+                        .ReadBy<DummyClass>(p => p.Id.Equals("1", StringComparison.InvariantCultureIgnoreCase))
+                        .GetAwaiter().GetResult()
+                        .FirstOrDefault();
+            var read2 = storageWithVersionControl
+                        .ReadBy<DummyClass>(p => p.Id.Equals("1", StringComparison.InvariantCultureIgnoreCase))
+                        .GetAwaiter().GetResult()
+                        .FirstOrDefault();
+
+            // Assert
+            Assert.Equal("1", read1.Id);
+            Assert.Equal("1", read2.Id);
         }
     }
 }

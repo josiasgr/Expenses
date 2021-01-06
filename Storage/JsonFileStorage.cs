@@ -124,21 +124,6 @@ namespace Storage
             );
         }
 
-        public Task<IEnumerable<string>> History<T>(T obj)
-        {
-            if (_enableVersionControl)
-            {
-                var result = new List<string>();
-                var (id, fullFileName) = GetIdAndFileName(obj);
-                var r = _repository.RetrieveStatus(fullFileName);
-                result.Add(r.ToString());
-
-                return Task.FromResult(result.AsEnumerable());
-            }
-
-            return Task.FromResult(Enumerable.Empty<string>());
-        }
-
         private string GetStorageFolderForType<T>()
         {
             // Prepares the folder, using the type name...
