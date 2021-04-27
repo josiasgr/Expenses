@@ -9,10 +9,10 @@ namespace Services.Transactions
     public class ExpenseServices : TransactionServices<Expense>
     {
         public ExpenseServices(
-            IStorage storage
+            IStorage[] storage
         ) : base(storage) { }
 
-        public Task<Expense> Create(
+        public Task<Expense[]> Create(
             string accountId,
             DateTime dateTime,
             int sequence,

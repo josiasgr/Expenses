@@ -1,5 +1,4 @@
-﻿using LibGit2Sharp;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,41 +8,25 @@ using Utils;
 
 namespace Storage
 {
-    public class JsonFileStorageConfig
+    public class OtherFileStorageConfig
     {
         public string Entity { get; set; }
-        public string StorageFolder { get; set; }
-        public bool EnableVersionControl { get; set; }
+        public string Table { get; set; }
     }
 
-    public class JsonFileStorage: IStorage
+    public class OtherFileStorage : IStorage
     {
-        private readonly bool _enableVersionControl;
-        private readonly IRepository _repository = null;
         private readonly string _storageFolder;
 
-        private static readonly object lockObj = new object();
-
-        public JsonFileStorage(JsonFileStorageConfig jsonFileStorageConfig)
+        public OtherFileStorage(OtherFileStorageConfig otherFileStorageConfig)
         {
-            _storageFolder = jsonFileStorageConfig.StorageFolder;
+            _storageFolder = otherFileStorageConfig.Table;
             Directory.CreateDirectory(_storageFolder);
-
-            _enableVersionControl = jsonFileStorageConfig.EnableVersionControl;
-            if (_enableVersionControl)
-            {
-                if (!Repository.IsValid(_storageFolder))
-                {
-                    Repository.Init(_storageFolder);
-                }
-
-                _repository = new Repository(_storageFolder);
-            }
         }
 
         public async Task<T> Create<T>(T obj, bool overwriteIfExists = false)
         {
-            var (id, fullFileName) = GetIdAndFileName<T>(obj);
+            var (id, fullFileName) = GetIdAndFileName(obj);
 
             if (!overwriteIfExists && File.Exists(fullFileName))
             {
@@ -60,8 +43,6 @@ namespace Storage
             // Write the data
             var content = JsonConvert.SerializeObject(obj, Formatting.Indented);
             await File.WriteAllTextAsync(fullFileName, content);
-
-            ExecuteVersionControl($"Creating {typeof(T).FullName} '{obj.GetValue<string>("Id")}'", fullFileName);
 
             return obj;
         }
@@ -172,28 +153,6 @@ namespace Storage
                     { "T", obj }
                 }
             });
-        }
-
-        private void ExecuteVersionControl(string message, string fileName)
-        {
-            if (_enableVersionControl)
-            {
-                lock (lockObj)
-                {
-                    var gitFileName = fileName.Replace(_repository.Info.WorkingDirectory, "");
-                    _repository.Index.Add(gitFileName);
-                    _repository.Index.Write();
-                    try
-                    {
-                        _repository.Commit(
-                            message,
-                            new Signature(this.GetType().FullName, "author@email", new DateTimeOffset()),
-                            new Signature(this.GetType().FullName, "commiter@email", new DateTimeOffset())
-                        );
-                    }
-                    catch (LibGit2Sharp.EmptyCommitException) { }
-                }
-            }
         }
     }
 }

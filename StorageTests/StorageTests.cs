@@ -1,6 +1,5 @@
 using Storage;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -13,17 +12,22 @@ namespace StorageTests
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public DateTime Timestamp { get; set; } = DateTime.Now;
 
-        public bool Equals([AllowNull] DummyClass other)
+        public bool Equals(DummyClass other)
         {
-            return this.Id.Equals(other.Id, StringComparison.InvariantCultureIgnoreCase)
-                  && this.Timestamp == other.Timestamp;
+            return this.Id.Equals(other?.Id, StringComparison.InvariantCultureIgnoreCase)
+                  && this.Timestamp == other?.Timestamp;
         }
     }
 
     public class StorageTests
     {
         private IStorage GetRandomStorage(bool enableVersionControl)
-            => new JsonFileStorage(Path.Combine(Path.GetTempPath(), DateTime.Now.ToShortDateString(), enableVersionControl.ToString()), enableVersionControl);
+            => new JsonFileStorage(new JsonFileStorageConfig
+            {
+                Entity = "",
+                EnableVersionControl = enableVersionControl,
+                StorageFolder = Path.Combine(Path.GetTempPath(), DateTime.Now.ToShortDateString(), enableVersionControl.ToString())
+            });
 
         [Fact, Order(2)]
         public void CreateJsonFileStorage()

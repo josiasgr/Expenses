@@ -8,5 +8,7 @@ namespace Entities
     public abstract class Entity
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
+
+        public override string ToString() => Id;
     }
 }

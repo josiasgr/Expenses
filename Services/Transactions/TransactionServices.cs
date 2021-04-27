@@ -5,7 +5,7 @@ namespace Services.Transactions
     public abstract class TransactionServices<T> : Services<T>
     {
         protected TransactionServices(
-        IStorage storage
+        IStorage[] storage
         ) : base(storage) { }
     }
 }

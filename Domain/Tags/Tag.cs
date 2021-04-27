@@ -12,7 +12,7 @@ namespace Domain.Tags
 
         public bool Equals(Tag other)
         {
-            return string.Compare(base.Value, other.Value, StringComparison.InvariantCultureIgnoreCase) == 0;
+            return string.Compare(base.Value, other?.Value, StringComparison.InvariantCultureIgnoreCase) == 0;
         }
     }
 }

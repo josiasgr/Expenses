@@ -1,13 +1,11 @@
 ﻿using Bogus;
 using Domain.Accounts;
-using Domain.Tags;
 using Domain.Transactions;
 using Services.Accounts;
 using Services.Transactions;
 using Storage;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -60,20 +58,25 @@ namespace ServicesTests.Transactions
         [MemberData(nameof(TransactionDates))]
         public async Task CreateAndReadExpences(string strDate)
         {
-            _account = await new AccountServices(new JsonFileStorage(@"C:\Test", true))
-                .Create("TransactionServicesTests", true);
+            _account = (await new AccountServices(new[] {
+                            new JsonFileStorage(new JsonFileStorageConfig {
+                                StorageFolder = @"C:\Test",
+                                EnableVersionControl = true
+                            })
+                        }).Create("TransactionServicesTests", true))
+                        .FirstOrDefault();
 
             // Arrange
             var date = DateTime.Parse(strDate);
-            var services = new ExpenseServices(
-                new JsonFileStorage(
-                    @"C:\Test"
-                    , true
-                )
-            );
+            var services = new ExpenseServices(new[] {
+                new JsonFileStorage(new JsonFileStorageConfig {
+                    StorageFolder = @"C:\Test",
+                    EnableVersionControl = true
+                })
+            });
 
             // Act
-            var expenseCreated = await services.Create(_account.Id, date, 0, new[] {
+            var expenseCreated = (await services.Create(_account.Id, date, 0, new[] {
                 new TransactionDetails {
                     Value = 1,
                     Tags= new List<string>()
@@ -82,7 +85,7 @@ namespace ServicesTests.Transactions
                         "SuperStore"
                     }
                 }
-            }, true);
+            }, true)).FirstOrDefault();
 
             // Assert
             var expenseRead = await services.Read(expenseCreated.Id);

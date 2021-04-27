@@ -37,17 +37,22 @@ namespace ServicesTests.Accounts
                 .ToArray();
 
         public AccountServicesTests()
-            => _storage = new JsonFileStorage(_storageBaseFolder, true);
+            => _storage = new JsonFileStorage(new JsonFileStorageConfig { 
+                Entity= "Account",
+                StorageFolder = _storageBaseFolder,
+                EnableVersionControl = true
+            });
 
         [Theory]
         [MemberData(nameof(AccountNames))]
         public async Task CreateAndReadAccountsByName(string accountName)
         {
             // Arrange
-            var services = new AccountServices(_storage);
+            var services = new AccountServices(new[] { _storage } );
 
             // Act
-            var accountCreated = await services.Create(accountName);
+            var accountCreated = (await services.Create(accountName)).FirstOrDefault();
+            
 
             // Assert
             var accountRead = await services.Read(accountCreated.Id);
@@ -59,10 +64,11 @@ namespace ServicesTests.Accounts
         public async Task CreateAndReadAccountsByObject(Account account)
         {
             // Arrange
-            var services = new AccountServices(_storage);
+            var services = new AccountServices(new[] { _storage });
 
             // Act
-            var accountCreated = await services.Create(account);
+            await services.Create(account);
+            var accountCreated = await services.Read(account.Id);
 
             // Assert
             var accountRead = await services.Read(accountCreated.Id);
@@ -74,7 +80,7 @@ namespace ServicesTests.Accounts
         public async Task ReadBy(string accountName)
         {
             // Arrange
-            var services = new AccountServices(_storage);
+            var services = new AccountServices(new[] { _storage });
             await services.Create(accountName);
 
             // Act
@@ -89,8 +95,9 @@ namespace ServicesTests.Accounts
         public async Task UpdateAccounts(string accountName)
         {
             // Arrange
-            var services = new AccountServices(_storage);
-            var accountCreated = await services.Create(accountName);
+            var services = new AccountServices(new[] { _storage });
+            await services.Create(accountName);
+            var accountCreated = await services.Read(accountName);
 
             // Act
             accountCreated.Name += accountCreated.Name;
@@ -105,11 +112,11 @@ namespace ServicesTests.Accounts
         public async Task DeleteAccounts(string accountName)
         {
             // Arrange
-            var services = new AccountServices(_storage);
-            var accountCreated = await services.Create(accountName);
+            var services = new AccountServices(new[] { _storage });
+            var accountCreated = (await services.Create(accountName)).FirstOrDefault();
 
             // Act
-            var wasDeleted = await services.Delete(accountCreated);
+            var wasDeleted = (await services.Delete(accountCreated)).FirstOrDefault();
 
             // Assert
             Assert.True(wasDeleted);

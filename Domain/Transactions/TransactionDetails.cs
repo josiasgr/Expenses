@@ -13,9 +13,9 @@ namespace Domain.Transactions
 
         public bool Equals(TransactionDetailsEntity other)
         {
-            return string.Compare(Id, other.Id, StringComparison.InvariantCultureIgnoreCase) == 0
-                    && Value == other.Value
-                    && Tags.Equals(other.Tags);
+            return string.Compare(Id, other?.Id, StringComparison.InvariantCultureIgnoreCase) == 0
+                    && Value == other?.Value
+                    && Tags.Equals(other?.Tags);
         }
     }
 }

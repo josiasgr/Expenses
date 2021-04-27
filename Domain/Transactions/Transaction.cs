@@ -13,11 +13,11 @@ namespace Domain.Transactions
 
         public bool Equals(Transaction other)
         {
-            return string.Compare(Id, other.Id, StringComparison.InvariantCultureIgnoreCase) == 0
-                    && string.Compare(AccountId, other.AccountId, StringComparison.InvariantCultureIgnoreCase) == 0
-                    && Date == other.Date
-                    && Sequence == other.Sequence
-                    && TransactionDetails.Equals(other.TransactionDetails);
+            return string.Compare(Id, other?.Id, StringComparison.InvariantCultureIgnoreCase) == 0
+                    && string.Compare(AccountId, other?.AccountId, StringComparison.InvariantCultureIgnoreCase) == 0
+                    && Date == other?.Date
+                    && Sequence == other?.Sequence
+                    && TransactionDetails.Equals(other?.TransactionDetails);
         }
     }
 }

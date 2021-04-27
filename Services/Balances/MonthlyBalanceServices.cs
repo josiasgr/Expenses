@@ -12,13 +12,13 @@ namespace Services.Balances
 
         public MonthlyBalanceServices(
             string accountId,
-            IStorage storage
+            IStorage[] storage
         ) : base(storage)
         {
             _accountId = accountId;
         }
 
-        public Task<MonthlyBalance> Create(DateTime dateTime, bool overwriteIfExists = false)
+        public Task<MonthlyBalance[]> Create(DateTime dateTime, bool overwriteIfExists = false)
         {
             var balance = new MonthlyBalance
             {
@@ -45,7 +45,7 @@ namespace Services.Balances
             return base.ReadBy(injectAccountId);
         }
 
-        public Task<bool> Delete(DateTime dateTime)
+        public Task<bool[]> Delete(DateTime dateTime)
         {
             var id = GenerateId(dateTime);
             return Delete(id);

@@ -7,10 +7,10 @@ namespace Services.Accounts
     public class AccountServices : Services<Account>
     {
         public AccountServices(
-            IStorage storage
+            IStorage[] storage
         ) : base(storage) { }
 
-        public Task<Account> Create(
+        public Task<Account[]> Create(
             string accountName,
             bool overwriteIfExists = false
         )
@@ -21,7 +21,7 @@ namespace Services.Accounts
             }, overwriteIfExists);
         }
 
-        public Task<bool> Delete(Account account)
+        public Task<bool[]> Delete(Account account)
         {
             return Delete(account.Id);
         }

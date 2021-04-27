@@ -7,12 +7,17 @@ namespace Domain.Balances
     {
         public bool Equals(MonthlyBalance other)
         {
-            return string.Compare(Id, other.Id, StringComparison.InvariantCultureIgnoreCase) == 0
-                    && string.Compare(AccountId, other.AccountId, StringComparison.InvariantCultureIgnoreCase) == 0
-                    && FromDate == other.FromDate
-                    && ToDate == other.ToDate
-                    && InitialValue == other.InitialValue
-                    && CurrentValue == other.CurrentValue;
+            return string.Compare(Id, other?.Id, StringComparison.InvariantCultureIgnoreCase) == 0
+                    && string.Compare(AccountId, other?.AccountId, StringComparison.InvariantCultureIgnoreCase) == 0
+                    && FromDate == other?.FromDate
+                    && ToDate == other?.ToDate
+                    && InitialValue == other?.InitialValue
+                    && CurrentValue == other?.CurrentValue;
+        }
+
+        public override string ToString()
+        {
+            return $"{FromDate:yyyy-MM}";
         }
     }
 }

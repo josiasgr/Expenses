@@ -1,12 +1,10 @@
-﻿using Bogus;
-using Domain.Accounts;
+﻿using Domain.Accounts;
 using Domain.Balances;
 using Services.Accounts;
 using Services.Balances;
 using Storage;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -36,17 +34,17 @@ namespace ServicesTests.Balances
         /// </summary>
         public static IEnumerable<object[]> BalanceDates =>
             new[] {
-                new [] { "2020-01-01" },
-                new [] { "2020-02-01" },
-                new [] { "2020-03-01" },
-                new [] { "2020-04-01" },
-                new [] { "2020-05-01" },
-                new [] { "2020-06-01" },
-                new [] { "2020-07-01" },
-                new [] { "2020-08-01" },
-                new [] { "2020-09-01" },
-                new [] { "2020-10-01" },
-                new [] { "2020-11-01" },
+                new [] { "2021-01-01" },
+                new [] { "2021-02-01" },
+                new [] { "2021-03-01" },
+                new [] { "2021-04-01" },
+                new [] { "2021-05-01" },
+                new [] { "2021-06-01" },
+                new [] { "2021-07-01" },
+                new [] { "2021-08-01" },
+                new [] { "2021-09-01" },
+                new [] { "2021-10-01" },
+                new [] { "2021-11-01" },
                 new [] { "2020-12-01" }
             };
 
@@ -54,8 +52,15 @@ namespace ServicesTests.Balances
         {
             Task.Run(async () =>
             {
-                _account = await new AccountServices(new JsonFileStorage(_storageBaseFolder, true))
-                    .Create("TransactionServicesTests", true);
+                _account = (await new AccountServices(new[] {
+                    new JsonFileStorage(new JsonFileStorageConfig
+                    {
+                        StorageFolder = _storageBaseFolder,
+                        EnableVersionControl = true
+                    })
+                })
+                .Create("TransactionServicesTests", true))
+                .FirstOrDefault();
             }).Wait();
         }
 
@@ -67,11 +72,11 @@ namespace ServicesTests.Balances
             var date = DateTime.Parse(strDate);
             var services = new MonthlyBalanceServices(
                 _account.Id,
-                GetStorageForBalanceDate(date)
+                new[] { GetStorageForBalanceDate() }
             );
 
             // Act
-            var balanceCreated = await services.Create(date, true);
+            var balanceCreated = (await services.Create(date, true)).FirstOrDefault();
 
             // Assert
             var balanceRead = await services.Read(balanceCreated.Id);
@@ -86,11 +91,11 @@ namespace ServicesTests.Balances
             balance.AccountId = _account.Id;
             var services = new MonthlyBalanceServices(
                 _account.Id,
-                GetStorageForBalanceDate(balance.FromDate)
+                new[] { GetStorageForBalanceDate() }
             );
 
             // Act
-            var balanceCreated = await services.Create(balance);
+            var balanceCreated = (await services.Create(balance)).FirstOrDefault();
 
             // Assert
             var balanceRead = await services.Read(balanceCreated.Id);
@@ -105,7 +110,7 @@ namespace ServicesTests.Balances
             var date = DateTime.Parse(strDate);
             var services = new MonthlyBalanceServices(
                 _account.Id,
-                GetStorageForBalanceDate(date)
+               new[] { GetStorageForBalanceDate() }
             );
 
             // Act
@@ -123,9 +128,9 @@ namespace ServicesTests.Balances
             var date = DateTime.Parse(strDate).AddYears(1);
             var services = new MonthlyBalanceServices(
                 _account.Id,
-                GetStorageForBalanceDate(date)
+                new[] { GetStorageForBalanceDate() }
             );
-            var balanceCreated = await services.Create(date);
+            var balanceCreated = (await services.Create(date)).FirstOrDefault();
 
             // Act
             var upd = await services.Update(balanceCreated);
@@ -142,22 +147,24 @@ namespace ServicesTests.Balances
             var date = DateTime.Parse(strDate);
             var services = new MonthlyBalanceServices(
                 _account.Id,
-                GetStorageForBalanceDate(date)
+                new[] { GetStorageForBalanceDate() }
             );
 
             // Act
-            var wasDeleted = await services.Delete(date);
+            var wasDeleted = (await services.Delete(date)).FirstOrDefault();
 
             // Assert
             Assert.True(wasDeleted);
         }
 
-        private IStorage GetStorageForBalanceDate(DateTime date)
+        private IStorage GetStorageForBalanceDate()
         {
-            return new JsonFileStorage(
-                    _storageBaseFolder,
-                    true
-                );
+            return new JsonFileStorage(new JsonFileStorageConfig
+                {
+                    StorageFolder = _storageBaseFolder,
+                    EnableVersionControl = true
+                }
+            );
         }
     }
 }

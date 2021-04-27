@@ -15,7 +15,7 @@ namespace ServicesTests.Balances
             => new Faker<MonthlyBalance>()
                     .RuleFor(
                         b => b.FromDate,
-                        f => f.Date.Between(DateTime.Parse("2019-01-01"), DateTime.Parse("2019-12-31"))
+                        f => f.Date.Between(DateTime.Parse("2021-01-01"), DateTime.Today)
                     );
     }
 }
