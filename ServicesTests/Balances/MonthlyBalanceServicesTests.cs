@@ -53,11 +53,9 @@ namespace ServicesTests.Balances
             Task.Run(async () =>
             {
                 _account = (await new AccountServices(new[] {
-                    new JsonFileStorage(new JsonFileStorageConfig
-                    {
-                        StorageFolder = _storageBaseFolder,
-                        EnableVersionControl = true
-                    })
+                    new JsonFileStorage(
+                        new JsonFileStorageConfig(_storageBaseFolder, true)
+                    )
                 })
                 .Create("TransactionServicesTests", true))
                 .FirstOrDefault();
@@ -159,12 +157,9 @@ namespace ServicesTests.Balances
 
         private IStorage GetStorageForBalanceDate()
         {
-            return new JsonFileStorage(new JsonFileStorageConfig
-                {
-                    StorageFolder = _storageBaseFolder,
-                    EnableVersionControl = true
-                }
-            );
+            return new JsonFileStorage(
+                    new JsonFileStorageConfig(_storageBaseFolder, true)
+                );
         }
     }
 }

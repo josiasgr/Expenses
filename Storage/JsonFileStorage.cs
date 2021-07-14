@@ -1,22 +1,17 @@
 ﻿using LibGit2Sharp;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Utils;
 
 namespace Storage
 {
-    public class JsonFileStorageConfig
-    {
-        public string Entity { get; set; }
-        public string StorageFolder { get; set; }
-        public bool EnableVersionControl { get; set; }
-    }
+    public record JsonFileStorageConfig(string StorageFolder, bool EnableVersionControl);
 
-    public class JsonFileStorage: IStorage
+    public class JsonFileStorage : IStorage
     {
         private readonly bool _enableVersionControl;
         private readonly IRepository _repository = null;
@@ -41,7 +36,7 @@ namespace Storage
             }
         }
 
-        public async Task<T> Create<T>(T obj, bool overwriteIfExists = false)
+        public async Task<T> CreateAsync<T>(T obj, bool overwriteIfExists = false)
         {
             var (id, fullFileName) = GetIdAndFileName<T>(obj);
 
@@ -58,7 +53,10 @@ namespace Storage
             }
 
             // Write the data
-            var content = JsonConvert.SerializeObject(obj, Formatting.Indented);
+            var content = JsonSerializer.Serialize(obj, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
             await File.WriteAllTextAsync(fullFileName, content);
 
             ExecuteVersionControl($"Creating {typeof(T).FullName} '{obj.GetValue<string>("Id")}'", fullFileName);
@@ -69,17 +67,17 @@ namespace Storage
         private async Task<T> CreateObjectFromFile<T>(string fullFileName)
         {
             var content = await File.ReadAllTextAsync(fullFileName);
-            return JsonConvert.DeserializeObject<T>(content);
+            return JsonSerializer.Deserialize<T>(content);
         }
 
-        public Task<T> Read<T>(string id)
+        public Task<T> ReadAsync<T>(string id)
         {
             return CreateObjectFromFile<T>(
                 GetFullFileName<T>(id)
             );
         }
 
-        public async Task<IEnumerable<T>> ReadBy<T>(Func<T, bool> predicate)
+        public async Task<IEnumerable<T>> ReadByAsync<T>(Func<T, bool> predicate)
         {
             var folder = GetStorageFolderForType<T>();
 
@@ -90,11 +88,11 @@ namespace Storage
             return objs.Where(predicate);
         }
 
-        public async Task<T> Update<T>(T obj)
+        public async Task<T> UpdateAsync<T>(T obj)
         {
             var sourceId = obj.GetValue<string>("Id");
 
-            var target = await Read<T>(sourceId);
+            var target = await ReadAsync<T>(sourceId);
             if (target == null)
             {
                 throw new StorageException(new LogEvent
@@ -107,10 +105,10 @@ namespace Storage
                 });
             }
 
-            return await Create(obj, true);
+            return await CreateAsync(obj, true);
         }
 
-        public Task<bool> Delete<T>(string id)
+        public Task<bool> DeleteAsync<T>(string id)
         {
             var fullFileName = GetFullFileName<T>(id);
 
@@ -122,7 +120,7 @@ namespace Storage
             return Task.FromResult(true);
         }
 
-        public Task<bool> Exists<T>(string id)
+        public Task<bool> ExistsAsync<T>(string id)
         {
             return Task.FromResult(
                 File.Exists(

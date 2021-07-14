@@ -25,31 +25,31 @@ namespace Services
         public virtual Task<T[]> Create(T obj, bool overwriteIfExists = false)
         {
             return Task.WhenAll(
-                    _storage.Select(s => s.Create(obj, overwriteIfExists))
+                    _storage.Select(s => s.CreateAsync(obj, overwriteIfExists))
                 );
         }
 
         public virtual Task<T> Read(string id)
         {
-            return _storage.First().Read<T>(id);
+            return _storage.First().ReadAsync<T>(id);
         }
 
         public virtual Task<IEnumerable<T>> ReadBy(Func<T, bool> predicate)
         {
-            return _storage.First().ReadBy(predicate);
+            return _storage.First().ReadByAsync(predicate);
         }
 
         public virtual Task<T[]> Update(T obj)
         {
             return Task.WhenAll(
-                _storage.Select(s => s.Update(obj))
+                _storage.Select(s => s.UpdateAsync(obj))
             );
         }
 
         public virtual Task<bool[]> Delete(string id)
         {
             return Task.WhenAll(
-                _storage.Select(s => s.Delete<T>(id))
+                _storage.Select(s => s.DeleteAsync<T>(id))
             );
         }
     }

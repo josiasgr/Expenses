@@ -9,16 +9,16 @@ namespace Storage
     /// </summary>
     public interface IStorage
     {
-        Task<T> Create<T>(T obj, bool overwriteIfExists = false);
+        Task<T> CreateAsync<T>(T obj, bool overwriteIfExists = false);
 
-        Task<T> Read<T>(string id);
+        Task<T> ReadAsync<T>(string id);
 
-        Task<IEnumerable<T>> ReadBy<T>(Func<T, bool> predicate);
+        Task<IEnumerable<T>> ReadByAsync<T>(Func<T, bool> predicate);
 
-        Task<T> Update<T>(T obj);
+        Task<T> UpdateAsync<T>(T obj);
 
-        Task<bool> Delete<T>(string id);
+        Task<bool> DeleteAsync<T>(string id);
 
-        Task<bool> Exists<T>(string id);
+        Task<bool> ExistsAsync<T>(string id);
     }
 }

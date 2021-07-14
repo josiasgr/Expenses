@@ -59,20 +59,18 @@ namespace ServicesTests.Transactions
         public async Task CreateAndReadExpences(string strDate)
         {
             _account = (await new AccountServices(new[] {
-                            new JsonFileStorage(new JsonFileStorageConfig {
-                                StorageFolder = @"C:\Test",
-                                EnableVersionControl = true
-                            })
+                            new JsonFileStorage(
+                                new JsonFileStorageConfig (@"C:\Test",true)
+                            )
                         }).Create("TransactionServicesTests", true))
                         .FirstOrDefault();
 
             // Arrange
             var date = DateTime.Parse(strDate);
             var services = new ExpenseServices(new[] {
-                new JsonFileStorage(new JsonFileStorageConfig {
-                    StorageFolder = @"C:\Test",
-                    EnableVersionControl = true
-                })
+                new JsonFileStorage(
+                    new JsonFileStorageConfig(@"C:\Test",true)
+                )
             });
 
             // Act

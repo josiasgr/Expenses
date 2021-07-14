@@ -2,32 +2,23 @@ using Storage;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Extensions.Ordering;
 
 namespace StorageTests
 {
-    public class DummyClass : IEquatable<DummyClass>
-    {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public DateTime Timestamp { get; set; } = DateTime.Now;
-
-        public bool Equals(DummyClass other)
-        {
-            return this.Id.Equals(other?.Id, StringComparison.InvariantCultureIgnoreCase)
-                  && this.Timestamp == other?.Timestamp;
-        }
-    }
+    public record DummyClass(string Id, DateTime Timestamp);
 
     public class StorageTests
     {
-        private IStorage GetRandomStorage(bool enableVersionControl)
-            => new JsonFileStorage(new JsonFileStorageConfig
-            {
-                Entity = "",
-                EnableVersionControl = enableVersionControl,
-                StorageFolder = Path.Combine(Path.GetTempPath(), DateTime.Now.ToShortDateString(), enableVersionControl.ToString())
-            });
+        private static IStorage GetRandomStorage(bool enableVersionControl)
+            => new JsonFileStorage(
+                new JsonFileStorageConfig(
+                        Path.Combine(Path.GetTempPath(), DateTime.Now.ToShortDateString(), enableVersionControl.ToString()),
+                        enableVersionControl
+                    )
+            );
 
         [Fact, Order(2)]
         public void CreateJsonFileStorage()
@@ -44,19 +35,16 @@ namespace StorageTests
         }
 
         [Fact, Order(2)]
-        public void CreateFileOnStorage()
+        public async Task CreateFileOnStorage()
         {
             // Arrange
             var storage = GetRandomStorage(false);
             var storageWithVersionControl = GetRandomStorage(true);
-            var o = new DummyClass
-            {
-                Id = "1"
-            };
+            var o = new DummyClass(Guid.NewGuid().ToString(), DateTime.Now);
 
             // Act
-            var created1 = storage.Create(o).GetAwaiter().GetResult();
-            var created2 = storageWithVersionControl.Create(o).GetAwaiter().GetResult();
+            var created1 = await storage.CreateAsync(o);
+            var created2 = await storageWithVersionControl.CreateAsync(o);
 
             // Assert
             Assert.Equal(o, created1);
@@ -64,15 +52,15 @@ namespace StorageTests
         }
 
         [Fact, Order(3)]
-        public void ReadFileOnStorageById()
+        public async Task ReadFileOnStorageById()
         {
             // Arrange
             var storage = GetRandomStorage(false);
             var storageWithVersionControl = GetRandomStorage(true);
 
             // Act
-            var read1 = storage.Read<DummyClass>("1").GetAwaiter().GetResult();
-            var read2 = storageWithVersionControl.Read<DummyClass>("1").GetAwaiter().GetResult();
+            var read1 = await storage.ReadAsync<DummyClass>("1");
+            var read2 = await storageWithVersionControl.ReadAsync<DummyClass>("1");
 
             // Assert
             Assert.Equal("1", read1.Id);
@@ -80,21 +68,20 @@ namespace StorageTests
         }
 
         [Fact, Order(4)]
-        public void ReadFileOnStorageByPredicate()
+        public async Task ReadFileOnStorageByPredicate()
         {
             // Arrange
             var storage = GetRandomStorage(false);
             var storageWithVersionControl = GetRandomStorage(true);
+            static bool findId1(DummyClass p) => p.Id.Equals("1", StringComparison.InvariantCultureIgnoreCase);
 
             // Act
-            var read1 = storage
-                        .ReadBy<DummyClass>(p => p.Id.Equals("1", StringComparison.InvariantCultureIgnoreCase))
-                        .GetAwaiter().GetResult()
-                        .FirstOrDefault();
-            var read2 = storageWithVersionControl
-                        .ReadBy<DummyClass>(p => p.Id.Equals("1", StringComparison.InvariantCultureIgnoreCase))
-                        .GetAwaiter().GetResult()
-                        .FirstOrDefault();
+            var read1 = (
+                            await storage.ReadByAsync<DummyClass>(findId1)
+                        ).SingleOrDefault();
+            var read2 = (
+                            await storageWithVersionControl.ReadByAsync<DummyClass>(findId1)
+                        ).SingleOrDefault();
 
             // Assert
             Assert.Equal("1", read1.Id);

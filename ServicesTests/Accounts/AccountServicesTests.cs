@@ -37,11 +37,9 @@ namespace ServicesTests.Accounts
                 .ToArray();
 
         public AccountServicesTests()
-            => _storage = new JsonFileStorage(new JsonFileStorageConfig { 
-                Entity= "Account",
-                StorageFolder = _storageBaseFolder,
-                EnableVersionControl = true
-            });
+            => _storage = new JsonFileStorage(
+                            new JsonFileStorageConfig(_storageBaseFolder, true)
+                        );
 
         [Theory]
         [MemberData(nameof(AccountNames))]
